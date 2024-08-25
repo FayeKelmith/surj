@@ -1,30 +1,30 @@
-import { Card, CardContent, CardDescription } from "@/components/ui/card";
+"use client";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ScanFace, LockKeyholeOpen } from "lucide-react";
+import { KeyRound } from "lucide-react";
+import { useToken } from "@/lib/store";
 export default function Home() {
+  const accessToken = useToken((state) => state.accessToken);
   return (
     <section className="flex flex-col items-center justify-between section ">
       <div>
-        <h1 className="text-6xl font-bold">Welcome to Surj</h1>
-        <p className="text-2xl text-center">A CV Generation App</p>
+        <h1 className="text-6xl font-bold text-center">Welcome to Surj</h1>
+        <h2 className="text-2xl text-center">
+          Thank you for trusting us with your growth
+        </h2>
       </div>
+
       <div className="flex space-x-8 mt-8">
-        <Card className="bg-blanc dark:bg-iconic rounded-md group mx-auto p-16 hover:shadow-md duration-800 ease-in-out">
-          <Link href="/auth/signin">
-            <CardContent className="text-center">
-              <ScanFace size={80} />
-              <CardDescription className="text-xl">Signin</CardDescription>
-            </CardContent>
+        {accessToken ? (
+          <Link href="/auth">
+            <Button className="space-x-4 text-lg">
+              <KeyRound size={24} />
+              <span>Get Started</span>
+            </Button>
           </Link>
-        </Card>
-        <Card className="bg-blanc dark:bg-iconic rounded-md group mx-auto p-16 hover:shadow-md duration-800 ease-in-out">
-          <Link href="/auth/login">
-            <CardContent className="text-center">
-              <LockKeyholeOpen size={80} />
-              <CardDescription className="text-xl">Login</CardDescription>
-            </CardContent>
-          </Link>
-        </Card>
+        ) : (
+          <h1>Thank you for signing up to Surj force. Let's get started</h1>
+        )}
       </div>
     </section>
   );

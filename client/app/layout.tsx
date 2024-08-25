@@ -3,6 +3,9 @@ import { signika } from "@/lib/font";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-components";
 import Navigation from "@/components/nav";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 export const metadata: Metadata = {
   title: "Surj",
   description: "CV Generation App",
@@ -33,6 +36,7 @@ export default function RootLayout({
               </p>
             </footer>
           </div>
+          <ToastContainer />
         </ThemeProvider>
       </body>
     </html>
