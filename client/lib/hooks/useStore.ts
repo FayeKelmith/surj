@@ -1,15 +1,18 @@
 import { useState, useEffect } from "react";
+import { StoreApi } from "zustand";
 
-const useStore = <T, F>(
-  store: (callback: (state: T) => unknown) => unknown,
-  callback: (state: T) => F
-) => {
-  const result = store(callback) as F;
-  const [data, setData] = useState<F>();
+const useStore = <T, F>(store: StoreApi<T>, selector: (state: T) => F) => {
+  const [data, setData] = useState<F>(selector(store.getState()));
 
   useEffect(() => {
-    setData(result);
-  }, [result]);
+    const unsubscribe = store.subscribe((state) => {
+      setData(selector(state));
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [store, selector]);
 
   return data;
 };

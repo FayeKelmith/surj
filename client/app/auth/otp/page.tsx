@@ -21,7 +21,8 @@ import {
 import { toast } from "react-toastify";
 import { MoveLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useUser, useToken } from "@/lib/store";
+import { useAuthStore } from "@/lib/store";
+import useStore from "@/lib/hooks/useStore";
 import axios from "axios";
 
 const formSchema = z.object({
@@ -31,8 +32,11 @@ const formSchema = z.object({
 });
 
 const page = () => {
-  const email = useUser((state) => state.email);
-  const setAccessToken = useToken((state) => state.setAccessToken);
+  // const email = useStore(useAuthStore, (state) => state.user?.email);
+  // const setAccessToken = useStore(useAuthStore, (state) => state.setToken);
+  const email = useAuthStore((state) => state.user?.email);
+  const setAccessToken = useAuthStore((state) => state.setToken);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -42,6 +46,7 @@ const page = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      console.log("otp front: ", email, values);
       const response = await axios.post("http://localhost:8000/auth/verify", {
         ...values,
         email: email,
@@ -49,7 +54,7 @@ const page = () => {
       if (response.status === 200) {
         toast.success("OTP verified");
         const token: string = response.data.token;
-        setAccessToken(token);
+        setAccessToken && setAccessToken(token);
         router.push("/");
       } else {
         toast.error("Please try again");

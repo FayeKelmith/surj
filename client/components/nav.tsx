@@ -1,3 +1,4 @@
+"use client";
 import { ModeToggle } from "./theme-toggler";
 import Link from "next/link";
 import { User } from "lucide-react";
@@ -7,7 +8,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
+import { useAuthStore } from "@/lib/store";
+import useStore from "@/lib/hooks/useStore";
+
 const Navigation = () => {
+  const name = useStore(useAuthStore, (state) => state.user?.name);
   return (
     <nav className="flex justify-between py-8">
       <Link href="/">
@@ -21,7 +26,7 @@ const Navigation = () => {
           </PopoverTrigger>
           <PopoverContent>
             <h3 className="text-center text-iconic text-xl dark:text-blanc">
-              Coming Soon...
+              {name ? `Hey there ${name}` : "Welcome"}
             </h3>
           </PopoverContent>
         </Popover>

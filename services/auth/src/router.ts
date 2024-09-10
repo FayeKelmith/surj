@@ -56,7 +56,12 @@ router.post(
 
 router.post("/verify", async (req: Request, res: Response) => {
   try {
+    console.log(req.body);
     const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(500).json({ message: "Email or OTP pending" });
+    }
 
     const user = await prisma.user.findUnique({
       where: {
@@ -92,4 +97,29 @@ router.post("/verify", async (req: Request, res: Response) => {
     return res.status(500).json({ message: "server error" });
   }
 });
+
+router.post("/add-info", async (req: Request, res: Response) => {
+  try {
+    const { name, contact, email } = req.body;
+
+    if (!name || !contact) {
+      return res.status(500).json({ message: "Invalid data" });
+    }
+
+    console.log({ name, contact, email });
+    const user = await prisma.user.update({
+      where: { email: email },
+      data: {
+        name,
+        contact,
+      },
+    });
+
+    return res.status(200).json({ message: "success", user });
+  } catch (err) {
+    console.log("Error occured while adding info");
+    return res.status(500).json({ message: "server error" });
+  }
+});
+
 export default router;

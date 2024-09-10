@@ -1,40 +1,42 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { User } from "./types";
 
-type State = {
-  email: string;
-  contact: string;
-  name: string;
-};
+interface AuthState {
+  isAuthenticated: boolean;
+  user: null | User;
+  token: null | string;
+  updateEmail: (email: User["email"]) => void;
+  updateName: (name: User["name"]) => void;
+  updateContact: (contact: User["contact"]) => void;
+  setToken: (token: string) => void;
+  logout: () => void;
+}
 
-type Action = {
-  updateEmail: (email: State["email"]) => void;
-  updateContact: (contact: State["contact"]) => void;
-  updateName: (name: State["name"]) => void;
-};
-
-export const useUser = create<State & Action>((set) => ({
-  email: "",
-  contact: "",
-  name: "",
-  updateEmail: (email: string) => set(() => ({ email: email })),
-  updateContact: (contact: string) => set(() => ({ contact: contact })),
-  updateName: (name: string) => set(() => ({ name: name })),
-}));
-
-type tokenState = {
-  accessToken: string;
-  refreshToken: string;
-};
-type tokenAction = {
-  setAccessToken: (token: tokenState["accessToken"]) => void;
-  setRefreshToken: (refreshToken: tokenState["refreshToken"]) => void;
-};
-export const useToken = create<tokenState & tokenAction>((set) => ({
-  accessToken: "",
-  refreshToken: "",
-  setAccessToken: (accessToken: string) =>
-    set(() => ({ accessToken: accessToken })),
-  setRefreshToken: (refreshToken: string) =>
-    set(() => ({ refreshToken: refreshToken })),
-}));
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      isAuthenticated: false,
+      user: null,
+      token: null,
+      updateEmail: (email: User["email"]) =>
+        set((state) => ({
+          user: state.user ? { ...state.user, email } : null,
+        })),
+      updateName: (name: User["name"]) =>
+        set((state) => ({
+          user: state.user ? { ...state.user, name } : null,
+        })),
+      updateContact: (contact: User["contact"]) =>
+        set((state) => ({
+          user: state.user ? { ...state.user, contact } : null,
+        })),
+      setToken: (token: string) => set(() => ({ token })),
+      logout: () =>
+        set(() => ({ isAuthenticated: false, user: null, token: null })),
+    }),
+    {
+      name: "auth",
+    }
+  )
+);

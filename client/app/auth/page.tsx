@@ -15,14 +15,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/lib/store";
+import { useAuthStore } from "@/lib/store";
+import useStore from "@/lib/hooks/useStore";
+import axios from "axios";
 
 const formSchema = z.object({
   email: z.string().email(),
 });
 const page = () => {
   const router = useRouter();
-  const setEmail = useUser((state) => state.updateEmail);
+  const updateEmail = useStore(useAuthStore, (state) => state.updateEmail);
+  const email = useStore(useAuthStore, (state) => state.user?.email);
+  // const updateEmail = useAuthStore((state) => state.updateEmail);
+  // const email = useAuthStore((state) => state.user?.email);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -32,20 +38,20 @@ const page = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      setEmail(values.email);
+      updateEmail(values.email);
+      console.log("email front: ", values.email);
 
-      await fetch("http://localhost:8000/auth/", {
-        method: "POST",
+      const response = await axios.post("http://localhost:8000/auth/", values, {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(values),
-      }).then((res) => {
-        if (res.status === 200) {
-          toast.success("Email Sent");
-          router.push("/auth/otp");
-        }
       });
+
+      if (response.status === 200) {
+        toast.success("Email Sent");
+        console.log(`Email sent: ${email}`);
+        router.push("/auth/otp");
+      }
     } catch (err) {
       console.error(err);
       toast.error("Failed to send email");
